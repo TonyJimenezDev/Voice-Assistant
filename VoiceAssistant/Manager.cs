@@ -19,6 +19,5 @@ namespace VoiceAssistant
         public static StringBuilder speechSB = new StringBuilder();
         public static System.Media.SoundPlayer music = new System.Media.SoundPlayer();
         public static Random random = new Random();
-        
     }
 }

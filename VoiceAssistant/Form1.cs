@@ -30,13 +30,12 @@ namespace VoiceAssistant
         {
             SetupRecognitionEngine();
             SetupListeningEngine();
+            speaking_Timer.Start();
         }
 
         private void SetupRecognitionEngine()
         {
             Choices choices = new Choices();
-            // Setup text file commands for recognitionEngine
-            //string[] grammerText = File.ReadAllLines(Environment.CurrentDirectory + "//CommandsFolder//commands.txt");
             choices.Add(Manager.grammerCommands);
             Grammar grammar = new Grammar(new GrammarBuilder(choices));
 
@@ -48,17 +47,10 @@ namespace VoiceAssistant
             Manager.assistant.SelectVoiceByHints(VoiceGender.Male);
         }
 
-        private void Recognizer_SpeechRecognize(object sender, SpeechDetectedEventArgs e)
-        {
-            listeningTimeOut = 0;
-        }
-
         // Setup ListeningEngine
         private void SetupListeningEngine()
         {
             Choices choices = new Choices();
-            // Setup text file commands for listeningEngine
-            //string[] grammerText = File.ReadAllLines(Environment.CurrentDirectory + "//CommandsFolder//listeningcommand.txt");
             choices.Add(Manager.grammerListening);
             Grammar grammar = new Grammar(new GrammarBuilder(choices));
 
@@ -81,7 +73,12 @@ namespace VoiceAssistant
             Manager.speechSB.Clear();
         }
 
-
+        // Assistant becomes alert on any speech, kind of buggy - resets timer
+        private void Recognizer_SpeechRecognize(object sender, SpeechDetectedEventArgs e)
+        {
+            listeningTimeOut = 0;
+            speaking_Timer.Start();
+        }
 
         private void RecognitionEngine_SpeechRecognize(object sender, SpeechRecognizedEventArgs e)
         {
@@ -97,14 +94,16 @@ namespace VoiceAssistant
             Manager.speechSB.Clear();
         }
 
+        // Handle assistant idle time
         private void Speaking_Timer_Tick(object sender, EventArgs e)
         {
+            listeningTimeOut += 1;
             switch (listeningTimeOut)
             {
-                case 6:
+                case 1:
                     Manager.recognitionEngine.RecognizeAsyncCancel();
                     break;
-                case 7:
+                case 2:
                     speaking_Timer.Stop();
                     Manager.listeningEngine.RecognizeAsync(RecognizeMode.Multiple);
                     listeningTimeOut = 0;
