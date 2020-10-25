@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Media;
 using System.Speech.Recognition;
 using System.Speech.Synthesis;
 using System.Text;
@@ -15,8 +16,7 @@ namespace VoiceAssistant
         public static SpeechRecognitionEngine listeningEngine = new SpeechRecognitionEngine();
         public static SpeechSynthesizer assistant = new SpeechSynthesizer();
         public static StringBuilder speechSB = new StringBuilder();
-        public static System.Media.SoundPlayer music = new System.Media.SoundPlayer();
+        public static SoundPlayer music = new SoundPlayer();
         public static Random random = new Random();
-
     }
 }

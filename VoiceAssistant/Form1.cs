@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Speech.Recognition;
+using System.Speech.Synthesis;
 using System.Windows.Forms;
+using System.Collections.ObjectModel;
 
 namespace VoiceAssistant
 {
@@ -34,10 +36,18 @@ namespace VoiceAssistant
             Manager.recognitionEngine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognitionEngine_SpeechRecognize);
             Manager.recognitionEngine.SpeechDetected += new EventHandler<SpeechDetectedEventArgs>(Recognizer_SpeechRecognize);
             Manager.recognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-            //Manager.assistant.SelectVoiceByHints(VoiceGender.Male);
-            var n = Manager.assistant.GetInstalledVoices();
-            Manager.assistant.SelectVoice("Microsoft James");
-            Manager.assistant.Rate = 02;
+
+            ReadOnlyCollection<InstalledVoice> getVoices = Manager.assistant.GetInstalledVoices();
+            Manager.assistant.SelectVoiceByHints(VoiceGender.Male);           
+            foreach(InstalledVoice voice in getVoices)
+            {
+                if(voice.VoiceInfo.Name == "Microsoft James")
+                {
+                    Manager.assistant.SelectVoice("Microsoft James");
+                    Manager.assistant.Rate = 02;
+                    break;
+                }
+            }   
         }
 
         // Setup ListeningEngine
@@ -60,8 +70,8 @@ namespace VoiceAssistant
             // Notify the assistant and gets it speaking again
             if(Manager.speechSB.ToString() == "Logan.")
             {
+                Manager.assistant.SpeakAsync("Whats up?"); // TODO: Check into.
                 Manager.listeningEngine.RecognizeAsyncCancel(); // Turn off
-                Manager.assistant.SpeakAsync("Whats up?");
                 Manager.recognitionEngine.RecognizeAsync(RecognizeMode.Multiple); // Turn on
                 speaking_Timer.Start();
                 listeningTimeOut = 0;
@@ -98,13 +108,17 @@ namespace VoiceAssistant
         {
             listeningTimeOut += 1;
 
-            if(listeningTimeOut == 10) Manager.recognitionEngine.RecognizeAsyncCancel();
+            if(listeningTimeOut == 10) Manager.recognitionEngine.RecognizeAsyncCancel(); // Turn Off 
             else if(listeningTimeOut == 11)
             {
-                Manager.assistant.SpeakAsync("Going to take a coffee break, call me if you need me");
-                Manager.listeningEngine.RecognizeAsync(RecognizeMode.Multiple);
+                // Notify that Assistant is going away
+                Manager.speechSB.Append("Going to take a coffee break, call me if you need me");
+                label2.Text = Manager.speechSB.ToString();
+                Manager.assistant.SpeakAsync(Manager.speechSB.ToString());
+                Manager.listeningEngine.RecognizeAsync(RecognizeMode.Multiple); // Turn on
                 speaking_Timer.Stop();
                 listeningTimeOut = 0;
+                Manager.speechSB.Clear();
             }            
         }
     }
