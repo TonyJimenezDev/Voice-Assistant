@@ -59,7 +59,7 @@
             // speaking_Timer
             // 
             this.speaking_Timer.Enabled = true;
-            this.speaking_Timer.Interval = 10000;
+            this.speaking_Timer.Interval = 1000;
             this.speaking_Timer.Tick += new System.EventHandler(this.Speaking_Timer_Tick);
             // 
             // showCommands_lstBx
