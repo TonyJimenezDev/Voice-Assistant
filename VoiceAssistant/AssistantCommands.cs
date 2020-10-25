@@ -1,10 +1,5 @@
-﻿using Microsoft.Speech.Synthesis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace VoiceAssistant
 {
@@ -24,32 +19,33 @@ namespace VoiceAssistant
             
             switch (Convert.ToString(text))
             {
-                case "Hello":
+                case "Logan.":
                     Manager.speechSB.Clear();
-                    Manager.speechSB.Append("Hey there, my name is Logan. How can I help you?");
+                    Manager.assistant.SpeakAsyncCancelAll();
+                    Manager.speechSB.Append("Yes?");
                     break;
                 case "What time is it?":
                     Manager.speechSB.Clear();
                     Manager.speechSB.Append("It is currently " + DateTime.Now.ToShortTimeString());
                     break;
-                case "Open Google":
+                case "Open Google.":
                     Manager.speechSB.Clear();
                     System.Diagnostics.Process.Start("https://www.google.com");
                     Manager.speechSB.Append("Opening Google");
                     break;
-                case "Close Google":
+                case "Close Google.":
                     Manager.speechSB.Clear();
                     System.Diagnostics.Process[] close = System.Diagnostics.Process.GetProcessesByName("chrome");
                     foreach (System.Diagnostics.Process process in close) process.Kill();
                     Manager.speechSB.Append("Closing Chrome");
                     break;
-                case "Faded":
+                case "Faded.":
                     Manager.speechSB.Clear();
                     Manager.music.SoundLocation = "faded.wav";
                     Manager.music.Play();
                     Manager.speechSB.Append("");
                     break;
-                case "Stop":
+                case "Stop.":
                     Manager.speechSB.Clear();
                     int rndResponse;
                     Manager.assistant.SpeakAsyncCancelAll();
@@ -60,19 +56,23 @@ namespace VoiceAssistant
                     Manager.recognitionEngine.RecognizeAsyncCancel(); // Turn off
                     Manager.listeningEngine.RecognizeAsync(System.Speech.Recognition.RecognizeMode.Multiple); // Turn on
                     break;
-                case "Show commands":
+                case "Show commands.":
                     Manager.speechSB.Clear();
                     _form1.showCommands_lstBx.Items.Clear();
                     _form1.showCommands_lstBx.SelectionMode = System.Windows.Forms.SelectionMode.None;
                     _form1.showCommands_lstBx.Visible = true;
                     foreach (string commands in Manager.grammerCommands) _form1.showCommands_lstBx.Items.Add(commands);
                     break;
-                case "Hide commands":
+                case "Hide commands.":
                     Manager.speechSB.Clear();
                     _form1.showCommands_lstBx.Visible = false;
                     break;
+                default:
+                    Manager.speechSB.Clear();
+                    Manager.speechSB.Append("Should I repeat that for you?");
+                    // Branch this out to answer the yes or no
 
-
+                    break;
             }
             return text;
         }

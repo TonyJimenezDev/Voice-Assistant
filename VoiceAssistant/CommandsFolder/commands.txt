@@ -1,9 +1,10 @@
-﻿Hello
+﻿Logan.
 What time is it?
-Open Google
-Close Google
-Shut down
-Faded
-Stop
-Show commands
-Hide commands
+Open Google.
+Close Google.
+Shut down.
+Faded.
+Stop.
+Show commands.
+Hide commands.
+Should I repeat that for you?

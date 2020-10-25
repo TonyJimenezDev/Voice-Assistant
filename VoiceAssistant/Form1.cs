@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 using System.Speech.Recognition;
-
-using System.IO;
-using Microsoft.Speech;
+using System.Windows.Forms;
 
 namespace VoiceAssistant
 {
@@ -49,9 +38,6 @@ namespace VoiceAssistant
             var n = Manager.assistant.GetInstalledVoices();
             Manager.assistant.SelectVoice("Microsoft James");
             Manager.assistant.Rate = 02;
-            
-            //Manager.speechBuilder.AppendText("Hello");
-            //Manager.assistant.SpeakAsync("Hello");
         }
 
         // Setup ListeningEngine
@@ -68,13 +54,14 @@ namespace VoiceAssistant
 
         private void StartListening_SpeechRecognize(object sender, SpeechRecognizedEventArgs e)
         {
+            Manager.speechSB.Clear();
             Manager.speechSB.Append(e.Result.Text);
-
+            
             // Notify the assistant and gets it speaking again
-            if(Manager.speechSB.ToString() == "Logan")
+            if(Manager.speechSB.ToString() == "Logan.")
             {
                 Manager.listeningEngine.RecognizeAsyncCancel(); // Turn off
-                Manager.assistant.SpeakAsync("Yes?");
+                Manager.assistant.SpeakAsync("Whats up?");
                 Manager.recognitionEngine.RecognizeAsync(RecognizeMode.Multiple); // Turn on
                 speaking_Timer.Start();
                 listeningTimeOut = 0;
@@ -91,15 +78,18 @@ namespace VoiceAssistant
 
         private void RecognitionEngine_SpeechRecognize(object sender, SpeechRecognizedEventArgs e)
         {
-            
             // Bulk of the work TODO
-            Manager.speechSB.Append(e.Result.Text);
-            assistantCommands.Commands(Manager.speechSB, this);
+            if(e.Result.Confidence > .75 && !e.Result.Equals(Manager.speechSB.ToString()))
+            {
+                
+                Manager.speechSB.Append(e.Result.Text);
+                assistantCommands.Commands(Manager.speechSB, this);
 
-            //Manager.speechBuilder.AppendText(assistantCommands.Commands(Manager.speechBuilder, this).ToString());
-            Manager.assistant.SpeakAsync(Manager.speechSB.ToString());
-            
-            label2.Text = Manager.speechSB.ToString();
+                //Manager.speechBuilder.AppendText(assistantCommands.Commands(Manager.speechBuilder, this).ToString());
+                Manager.assistant.SpeakAsync(Manager.speechSB.ToString());
+
+                label2.Text = Manager.speechSB.ToString();
+            }
             Manager.speechSB.Clear();
         }
 
@@ -107,18 +97,15 @@ namespace VoiceAssistant
         private void Speaking_Timer_Tick(object sender, EventArgs e)
         {
             listeningTimeOut += 1;
-            switch (listeningTimeOut)
+
+            if(listeningTimeOut == 10) Manager.recognitionEngine.RecognizeAsyncCancel();
+            else if(listeningTimeOut == 11)
             {
-                case 30:
-                    Manager.recognitionEngine.RecognizeAsyncCancel();
-                    break;
-                case 31:
-                    Manager.listeningEngine.RecognizeAsync(RecognizeMode.Multiple);
-                    speaking_Timer.Stop();
-                    listeningTimeOut = 0;
-                    break;
-            }
-            
+                Manager.assistant.SpeakAsync("Going to take a coffee break, call me if you need me");
+                Manager.listeningEngine.RecognizeAsync(RecognizeMode.Multiple);
+                speaking_Timer.Stop();
+                listeningTimeOut = 0;
+            }            
         }
     }
 }
